@@ -1,0 +1,51 @@
+TaskID,TaskName,Category,Duration,RequiredSkills,PreferredPhases,MaxConcurrent
+T1,Data Cleaning,DataOps,2,Python;Excel,1-2,2
+T2,Model Training,ML,3,Python;TensorFlow,2-4,1
+T3,Report Generation,Analytics,1,Excel,1,3
+T4,Client Meeting,Management,1,Communication,3,2
+T5,Deployment,DevOps,2,Docker;AWS,4-5,1
+T6,Data Ingestion,DataOps,1,Python;SQL,1,2
+T7,Dashboard Setup,Analytics,2,React;D3,2-3,2
+T8,Security Audit,Security,1,Security;Python,3,1
+T9,API Integration,DevOps,2,Node.js;REST,2,2
+T10,Documentation,Management,1,Writing,1-5,3
+T11,Testing,QA,1,Python;Jest,4,2
+T12,ETL Pipeline,DataOps,3,Python;Airflow,2-4,1
+T13,Data Labeling,ML,2,Labeling,1-2,2
+T14,Model Evaluation,ML,1,Python;Scikit-learn,3,1
+T15,User Training,Support,1,Communication,5,2
+T16,Incident Response,Security,1,Security,4,1
+T17,Data Migration,DataOps,2,SQL;Python,2-3,2
+T18,Performance Tuning,DevOps,1,AWS;SQL,5,1
+T19,Backup,DevOps,1,AWS,1,2
+T20,Data Visualization,Analytics,2,D3;Excel,3-4,2
+T21,Requirement Analysis,Management,1,Communication,2,2
+T22,Stakeholder Review,Management,1,Communication,4,1
+T23,Data Validation,QA,1,Python;Excel,2,2
+T24,Server Maintenance,DevOps,1,Linux,5,1
+T25,Feature Engineering,ML,2,Python;Pandas,3,2
+T26,Access Control,Security,1,Security,1,1
+T27,Cloud Cost Review,DevOps,1,AWS,2,2
+T28,Data Sync,DataOps,2,Python;SQL,4-5,1
+T29,Anomaly Detection,ML,2,Python;Scikit-learn,3,1
+T30,Customer Feedback,Support,1,Communication,2,2
+T31,Data Archival,DataOps,1,Python,5,1
+T32,Data Mapping,DataOps,2,SQL,1-2,2
+T33,Data Merge,DataOps,1,Python,3,1
+T34,Incident Logging,Security,1,Security,4,1
+T35,Data Encryption,Security,2,Security;Python,2-3,1
+T36,Model Deployment,ML,2,Python;Docker,5,2
+T37,Patch Management,DevOps,1,Linux,1,1
+T38,Data Sampling,Analytics,1,Python,2,2
+T39,Data Backup,DevOps,1,AWS,3,1
+T40,Data Recovery,DevOps,2,AWS,4,1
+T41,Compliance Check,Security,1,Security,5,1
+T42,Integration Testing,QA,2,Python;Jest,2-3,2
+T43,Release Planning,Management,1,Communication,1,2
+T44,Data Masking,Security,1,Security,2,1
+T45,User Access Review,Security,1,Security,3,1
+T46,Resource Allocation,Management,2,Excel,4,2
+T47,Incident Simulation,Security,1,Security,5,1
+T48,Data Retention,DataOps,1,Python,1,1
+T49,Data Sharding,DataOps,2,SQL,2-3,2
+T50,Model Retraining,ML,2,Python;TensorFlow,4,1 
