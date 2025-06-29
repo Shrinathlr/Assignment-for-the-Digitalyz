@@ -6,17 +6,13 @@ import {
   Typography,
   Card,
   CardContent,
-  List,
-  ListItem,
-  ListItemText,
   Chip,
-  CircularProgress,
   Alert,
-  Divider,
   Accordion,
   AccordionSummary,
   AccordionDetails
 } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface AIRecommendation {
   id: string;
@@ -29,7 +25,7 @@ interface AIRecommendation {
 }
 
 interface AIHelperProps {
-  data: any[];
+  data: unknown[];
   title: string;
   onRecommendationApply?: (recommendation: AIRecommendation) => void;
 }
@@ -56,12 +52,12 @@ const AIHelper: React.FC<AIHelperProps> = ({
       const newRecommendations: AIRecommendation[] = [];
       
       if (data.length > 0) {
-        const sampleRow = data[0];
+        const sampleRow = data[0] as Record<string, unknown>;
         const fields = Object.keys(sampleRow);
 
         // Analyze each field for potential issues
         fields.forEach((field, index) => {
-          const values = data.map(row => row[field]).filter(val => val !== null && val !== undefined);
+          const values = data.map(row => (row as Record<string, unknown>)[field as string]).filter(val => val !== null && val !== undefined);
           const uniqueValues = new Set(values);
           const emptyCount = values.filter(val => val === '' || val === null || val === undefined).length;
           const totalCount = values.length;
@@ -354,7 +350,7 @@ const AIHelper: React.FC<AIHelperProps> = ({
 
         {recommendations.length === 0 && !isProcessing && (
           <Alert severity="info">
-            No AI recommendations yet. Use "Auto-Analyze Data" or ask a specific question to get started.
+            No AI recommendations yet. Use &quot;Auto-Analyze Data&quot; or ask a specific question to get started.
           </Alert>
         )}
       </CardContent>

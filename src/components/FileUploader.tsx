@@ -4,7 +4,7 @@ import * as XLSX from 'xlsx';
 
 interface FileUploaderProps {
   label: string;
-  onData: (data: any[], fileName: string) => void;
+  onData: (data: unknown[], fileName: string) => void;
   accept?: string;
 }
 
@@ -26,7 +26,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ label, onData, accept }) =>
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
         onData(json, file.name);
-      } catch (err) {
+      } catch {
         setError('Failed to parse file. Please upload a valid CSV or XLSX.');
       }
     };
@@ -36,7 +36,11 @@ const FileUploader: React.FC<FileUploaderProps> = ({ label, onData, accept }) =>
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: (accept || '.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel') as any,
+    accept: accept ? { [accept]: [] } : {
+      'text/csv': ['.csv'],
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+      'application/vnd.ms-excel': ['.xls']
+    },
     multiple: false,
   });
 

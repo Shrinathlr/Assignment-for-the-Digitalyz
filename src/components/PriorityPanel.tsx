@@ -4,19 +4,18 @@ import {
   Typography,
   Card,
   CardContent,
-  List,
-  ListItem,
-  ListItemText,
   Slider,
   Chip,
   Button,
   TextField,
   Alert,
-  Divider,
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Divider,
+  List,
+  ListItem
 } from '@mui/material';
 
 interface PriorityItem {
@@ -29,7 +28,7 @@ interface PriorityItem {
 }
 
 interface PriorityPanelProps {
-  data: any[];
+  data: unknown[];
   title: string;
   onPrioritiesChange?: (priorities: PriorityItem[]) => void;
 }
@@ -48,9 +47,6 @@ const PriorityPanel: React.FC<PriorityPanelProps> = ({
     description: ''
   });
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-
-  // Available fields from data
-  const availableFields = data && data.length > 0 ? Object.keys(data[0]) : [];
 
   // Categories
   const categories = [

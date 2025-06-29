@@ -1,26 +1,22 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Box, Typography, Chip } from '@mui/material';
 
 interface DataGridProps {
-  data: any[];
+  data: unknown[];
   title: string;
-  onDataChange?: (newData: any[]) => void;
 }
 
 const DataGridComponent: React.FC<DataGridProps> = ({ 
   data, 
-  title, 
-  onDataChange 
+  title 
 }) => {
-  const [rows, setRows] = useState(data);
-
   // Generate columns dynamically based on data structure
   const columns: GridColDef[] = useMemo(() => {
     if (!data || data.length === 0) return [];
 
     const sampleRow = data[0];
-    return Object.keys(sampleRow).map((key) => ({
+    return Object.keys(sampleRow as Record<string, unknown>).map((key) => ({
       field: key,
       headerName: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'),
       flex: 1,
@@ -31,11 +27,11 @@ const DataGridComponent: React.FC<DataGridProps> = ({
 
   // Add unique IDs to rows if they don't exist
   const rowsWithIds = useMemo(() => {
-    return rows.map((row, index) => ({
-      ...row,
-      id: row.id || `row-${index}`,
+    return data.map((row, index) => ({
+      ...(row as Record<string, unknown>),
+      id: (row as Record<string, unknown>).id || `row-${index}`,
     }));
-  }, [rows]);
+  }, [data]);
 
   if (!data || data.length === 0) {
     return (

@@ -6,13 +6,8 @@ import {
   Typography,
   Card,
   CardContent,
-  List,
-  ListItem,
-  ListItemText,
   Chip,
-  CircularProgress,
   Alert,
-  Divider,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -35,9 +30,9 @@ interface DataModification {
 }
 
 interface NaturalLanguageDataModifierProps {
-  data: any[];
+  data: unknown[];
   title: string;
-  onDataChange?: (newData: any[]) => void;
+  onDataChange?: (newData: unknown[]) => void;
 }
 
 // Move normalization and availableFields outside parseCommand
@@ -51,11 +46,10 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
   const [command, setCommand] = useState('');
   const [modifications, setModifications] = useState<DataModification[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
 
   // Available fields from data
-  const availableFields = data && data.length > 0 ? Object.keys(data[0]) : [];
+  const availableFields = data && data.length > 0 ? Object.keys(data[0] as Record<string, unknown>) : [];
 
   // Updated parseCommand to accept setError and availableFields
   const parseCommand = (command: string, setError?: (msg: string) => void): Partial<DataModification> | null => {
@@ -84,8 +78,8 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
     const normalizedCommand = normalize(lowerCommand);
     let matchedField = '';
     for (const field of availableFields) {
-      if (normalizedCommand.includes(normalize(field))) {
-        matchedField = field;
+      if (normalizedCommand.includes(normalize(field as string))) {
+        matchedField = field as string;
         break;
       }
     }
@@ -110,7 +104,9 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
 
     // If no field matched, return null and helpful error
     if (!matchedField) {
-      setError && setError(`Could not find a matching field. Available fields: ${availableFields.join(', ')}`);
+      if (setError) {
+        setError(`Could not find a matching field. Available fields: ${availableFields.join(', ')}`);
+      }
       return null;
     }
 
@@ -124,7 +120,7 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
   };
 
   // Apply modification to data
-  const applyModification = (modification: DataModification): any[] => {
+  const applyModification = (modification: DataModification): unknown[] => {
     const newData = [...data];
     
     try {
@@ -132,8 +128,8 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
         case 'update':
           return newData.map((row, index) => {
             if (modification.affectedRows.includes(index + 1) || 
-                (modification.condition && evaluateCondition(row, modification.condition))) {
-              return { ...row, [modification.field]: modification.newValue };
+                (modification.condition && evaluateCondition(row as Record<string, unknown>, modification.condition))) {
+              return { ...(row as Record<string, unknown>), [modification.field]: modification.newValue };
             }
             return row;
           });
@@ -141,14 +137,14 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
         case 'delete':
           return newData.filter((row, index) => {
             if (modification.affectedRows.includes(index + 1) || 
-                (modification.condition && evaluateCondition(row, modification.condition))) {
+                (modification.condition && evaluateCondition(row as Record<string, unknown>, modification.condition))) {
               return false;
             }
             return true;
           });
 
         case 'add':
-          const newRow: any = {};
+          const newRow: Record<string, unknown> = {};
           availableFields.forEach(field => {
             newRow[field] = field === modification.field ? modification.newValue : '';
           });
@@ -157,13 +153,13 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
         case 'replace':
           return newData.map((row, index) => {
             if (modification.affectedRows.includes(index + 1) || 
-                (modification.condition && evaluateCondition(row, modification.condition))) {
-              const oldValue = row[modification.field];
+                (modification.condition && evaluateCondition(row as Record<string, unknown>, modification.condition))) {
+              const oldValue = (row as Record<string, unknown>)[modification.field];
               const newValue = String(oldValue).replace(
                 new RegExp(modification.condition.split(' ')[2], 'gi'), 
                 modification.newValue
               );
-              return { ...row, [modification.field]: newValue };
+              return { ...(row as Record<string, unknown>), [modification.field]: newValue };
             }
             return row;
           });
@@ -171,9 +167,9 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
         case 'transform':
           return newData.map((row, index) => {
             if (modification.affectedRows.includes(index + 1) || 
-                (modification.condition && evaluateCondition(row, modification.condition))) {
-              const transformedValue = transformValue(row[modification.field], modification.newValue);
-              return { ...row, [modification.field]: transformedValue };
+                (modification.condition && evaluateCondition(row as Record<string, unknown>, modification.condition))) {
+              const transformedValue = transformValue((row as Record<string, unknown>)[modification.field], modification.newValue);
+              return { ...(row as Record<string, unknown>), [modification.field]: transformedValue };
             }
             return row;
           });
@@ -181,14 +177,18 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
         default:
           return newData;
       }
-    } catch (error) {
-      console.error('Error applying modification:', error);
-      return newData;
+    } catch {
+      setModifications(prev => prev.map(mod => 
+        mod.id === modification.id 
+          ? { ...mod, status: 'failed' as const }
+          : mod
+      ));
     }
+    return newData;
   };
 
   // Evaluate condition for filtering rows
-  const evaluateCondition = (row: any, condition: string): boolean => {
+  const evaluateCondition = (row: Record<string, unknown>, condition: string): boolean => {
     if (!condition) return true;
     
     const parts = condition.split(' ');
@@ -196,7 +196,7 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
     const operator = parts[1];
     const value = parts[2];
     
-    const fieldValue = String(row[field] || '').toLowerCase();
+    const fieldValue = String((row as Record<string, unknown>)[field] || '').toLowerCase();
     const compareValue = value.toLowerCase();
     
     switch (operator) {
@@ -218,7 +218,7 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
   };
 
   // Transform values based on transformation type
-  const transformValue = (value: any, transformType: string): any => {
+  const transformValue = (value: unknown, transformType: string): unknown => {
     const stringValue = String(value);
     
     switch (transformType.toLowerCase()) {
@@ -246,10 +246,9 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
     if (!command.trim() || !data || data.length === 0) return;
 
     setIsProcessing(true);
-    setError(null);
 
     try {
-      const parsed = parseCommand(command, setError);
+      const parsed = parseCommand(command);
       if (!parsed || !parsed.field) {
         // setError is already called in parseCommand
         return;
@@ -271,7 +270,7 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
       if (previewMode) {
         const affectedRows = data.map((row, index) => {
           if (modification.affectedRows.includes(index + 1) || 
-              (modification.condition && evaluateCondition(row, modification.condition))) {
+              (modification.condition && evaluateCondition(row as Record<string, unknown>, modification.condition))) {
             return index + 1;
           }
           return null;
@@ -284,7 +283,6 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
       setCommand('');
 
     } catch (err) {
-      setError('Failed to process command. Please try again.');
       console.error('Command processing error:', err);
     } finally {
       setIsProcessing(false);
@@ -303,13 +301,12 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
           ? { ...mod, status: 'applied' as const }
           : mod
       ));
-    } catch (error) {
+    } catch {
       setModifications(prev => prev.map(mod => 
         mod.id === modification.id 
           ? { ...mod, status: 'failed' as const }
           : mod
       ));
-      setError('Failed to apply modification.');
     }
   };
 
@@ -391,12 +388,6 @@ const NaturalLanguageDataModifier: React.FC<NaturalLanguageDataModifierProps> = 
             </FormControl>
           </Box>
         </Box>
-
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
 
         {/* Example Commands */}
         <Box sx={{ mb: 3 }}>

@@ -11,11 +11,10 @@ import {
   Select,
   MenuItem,
   Chip,
-  List,
-  ListItem,
-  ListItemText,
   Alert,
-  Divider
+  Divider,
+  List,
+  ListItem
 } from '@mui/material';
 
 interface Rule {
@@ -31,7 +30,7 @@ interface Rule {
 }
 
 interface RuleBuilderProps {
-  data: any[];
+  data: unknown[];
   title: string;
   onRulesChange?: (rules: Rule[]) => void;
 }
@@ -56,7 +55,11 @@ const RuleBuilder: React.FC<RuleBuilderProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Available fields from data
-  const availableFields = data && data.length > 0 ? Object.keys(data[0]) : [];
+  let availableFields: string[] = [];
+  if (data && data.length > 0) {
+    const sampleRow = data[0] as Record<string, unknown>;
+    availableFields = Object.keys(sampleRow);
+  }
 
   // Operators for different data types
   const operators = [
@@ -350,7 +353,7 @@ const RuleBuilder: React.FC<RuleBuilderProps> = ({
                         <Chip label={`Priority: ${rule.priority}`} size="small" variant="outlined" />
                       </span>
                       <Typography component="span" variant="body2" color="text.secondary">
-                        {rule.description || `${rule.field} ${rule.operator} "${rule.value}" → ${rule.action}`}
+                        {rule.description && rule.description.replace(/"/g, '&quot;')}
                       </Typography>
                       <span style={{ display: 'flex', gap: 4, marginTop: 8 }}>
                         <Chip label={rule.field} size="small" variant="outlined" />

@@ -7,7 +7,6 @@ import {
   Chip, 
   List, 
   ListItem, 
-  ListItemText, 
   Alert,
   Button,
   Divider
@@ -17,12 +16,12 @@ import { z } from 'zod';
 interface ValidationError {
   field: string;
   message: string;
-  value: any;
+  value: unknown;
   rowIndex: number;
 }
 
 interface ValidationPanelProps {
-  data: any[];
+  data: unknown[];
   title: string;
   onValidationComplete?: (errors: ValidationError[]) => void;
 }
@@ -45,8 +44,8 @@ const ValidationPanel: React.FC<ValidationPanelProps> = ({
   };
 
   // Generate validation schema based on data structure
-  const generateSchema = (sampleRow: any) => {
-    const schemaFields: Record<string, any> = {};
+  const generateSchema = (sampleRow: Record<string, unknown>) => {
+    const schemaFields: Record<string, z.ZodTypeAny> = {};
     
     Object.keys(sampleRow).forEach((key) => {
       const value = sampleRow[key];
@@ -76,16 +75,16 @@ const ValidationPanel: React.FC<ValidationPanelProps> = ({
     const errors: ValidationError[] = [];
     
     try {
-      const schema = generateSchema(data[0]);
+      const schema = generateSchema(data[0] as Record<string, unknown>);
       
       data.forEach((row, index) => {
-        const result = schema.safeParse(row);
+        const result = schema.safeParse(row as Record<string, unknown>);
         if (!result.success) {
           result.error.issues.forEach((issue) => {
             errors.push({
               field: issue.path.join('.'),
               message: issue.message,
-              value: row[issue.path[0]],
+              value: (row as Record<string, unknown>)[issue.path[0]],
               rowIndex: index + 1,
             });
           });
@@ -199,7 +198,7 @@ const ValidationPanel: React.FC<ValidationPanelProps> = ({
                       </span>
                       {errors.slice(0, 3).map((error, index) => (
                         <Typography key={index} component="span" variant="body2" color="text.secondary" style={{ display: 'block' }}>
-                          Row {error.rowIndex}: {error.message} (Value: "{error.value}")
+                          Row {error.rowIndex}: {error.message} (Value: &quot;{String(error.value)}&quot;)
                         </Typography>
                       ))}
                       {errors.length > 3 && (

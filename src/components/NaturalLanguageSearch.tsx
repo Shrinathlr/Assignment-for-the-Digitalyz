@@ -6,25 +6,24 @@ import {
   Typography,
   Card,
   CardContent,
+  Chip,
+  Alert,
+  CircularProgress,
   List,
   ListItem,
-  ListItemText,
-  Chip,
-  CircularProgress,
-  Alert,
   Divider
 } from '@mui/material';
 
 interface SearchResult {
   rowIndex: number;
-  row: any;
+  row: Record<string, unknown>;
   score: number;
   matchedFields: string[];
   highlight: string;
 }
 
 interface NaturalLanguageSearchProps {
-  data: any[];
+  data: unknown[];
   title: string;
   onSearchResults?: (results: SearchResult[]) => void;
 }
@@ -41,7 +40,6 @@ const NaturalLanguageSearch: React.FC<NaturalLanguageSearchProps> = ({
 
   // Simple natural language query processing
   const processQuery = (query: string): { keywords: string[], filters: Record<string, string> } => {
-    const lowerQuery = query.toLowerCase();
     const keywords: string[] = [];
     const filters: Record<string, string> = {};
 
@@ -80,12 +78,13 @@ const NaturalLanguageSearch: React.FC<NaturalLanguageSearchProps> = ({
       const searchResults: SearchResult[] = [];
 
       data.forEach((row, index) => {
+        const typedRow = row as Record<string, unknown>;
         let score = 0;
         const matchedFields: string[] = [];
         let highlight = '';
 
         // Check each field in the row
-        Object.entries(row).forEach(([field, value]) => {
+        Object.entries(typedRow).forEach(([field, value]) => {
           const fieldValue = String(value).toLowerCase();
           
           // Apply filters
@@ -120,7 +119,7 @@ const NaturalLanguageSearch: React.FC<NaturalLanguageSearchProps> = ({
         if (score > 0) {
           searchResults.push({
             rowIndex: index + 1,
-            row,
+            row: typedRow,
             score,
             matchedFields,
             highlight: highlight.trim()
@@ -265,7 +264,7 @@ const NaturalLanguageSearch: React.FC<NaturalLanguageSearchProps> = ({
 
         {query && results.length === 0 && !isSearching && !error && (
           <Alert severity="info">
-            No results found for "{query}". Try different keywords or check your spelling.
+            No results found for &quot;{query}&quot;. Try different keywords or check your spelling.
           </Alert>
         )}
       </CardContent>

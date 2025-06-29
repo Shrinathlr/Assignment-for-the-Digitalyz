@@ -8,8 +8,7 @@ import {
   Container, 
   Paper,
   Button,
-  Chip,
-  Divider
+  Chip
 } from "@mui/material";
 import FileUploader from "../components/FileUploader";
 import DataGridComponent from "../components/DataGrid";
@@ -43,9 +42,9 @@ function TabPanel(props: TabPanelProps) {
 }
 
 export default function Home() {
-  const [clients, setClients] = useState<any[] | null>(null);
-  const [workers, setWorkers] = useState<any[] | null>(null);
-  const [tasks, setTasks] = useState<any[] | null>(null);
+  const [clients, setClients] = useState<unknown[] | null>(null);
+  const [workers, setWorkers] = useState<unknown[] | null>(null);
+  const [tasks, setTasks] = useState<unknown[] | null>(null);
   const [tabValue, setTabValue] = useState(0);
   const [activeDataset, setActiveDataset] = useState<string>('clients');
 
@@ -71,7 +70,7 @@ export default function Home() {
     }
   };
 
-  const handleDataChange = (newData: any[]) => {
+  const handleDataChange = (newData: unknown[]) => {
     switch (activeDataset) {
       case 'clients':
         setClients(newData);
@@ -171,7 +170,6 @@ export default function Home() {
               <DataGridComponent
                 data={getActiveData() || []}
                 title={getActiveTitle()}
-                onDataChange={handleDataChange}
               />
             </TabPanel>
 
